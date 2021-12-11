@@ -9,6 +9,7 @@ import {
 } from '@nestjs/common';
 import { ApiResponse, ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
+import { User } from 'src/users/entities/user.entity';
 import { UsersService } from 'src/users/users.service';
 import { ChatroomsService } from './chatrooms.service';
 import { Chatroom } from './enitities/chatroom.entity';
@@ -58,7 +59,10 @@ export class ChatroomsController {
   @Get()
   @UseGuards(JwtAuthGuard)
   async findAll(@Request() req) {
-    return (await this.userService.findOneById(req.user.id)).chatrooms;
+    return (await this.userService.findOneById(req.user.id)).chatrooms.map(chatroom => {
+      chatroom.users = [chatroom.users.find(user => user.id !== req.user.id)];
+      return chatroom;
+    });
   }
   @ApiResponse({
     status: 200,

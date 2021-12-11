@@ -193,4 +193,12 @@ export class UsersService {
 
     return users;
   }
+
+  async findUsersByType(type: number): Promise<User[]> {
+    return this.userRepository.find({
+      where: {
+        type: type
+      }
+    })
+  }
 }

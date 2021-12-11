@@ -140,4 +140,16 @@ export class UsersController {
 
     return users;
   }
+
+  @ApiResponse({
+    status: 200,
+    description: 'Returns users by type',
+    type: [UserDto],
+  })
+  @Get(':type')
+  @HttpCode(200)
+  async findUsersByType(@Param('type') type: number) {
+    return this.usersService.findUsersByType(type);
+  }
+
 }
