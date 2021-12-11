@@ -10,6 +10,7 @@ export class CreateUserDto {
   @ApiProperty()
   @MinLength(8)
   password: string;
+  @ApiProperty()
   bio: string;
   @IsArray()
   @ApiProperty()
