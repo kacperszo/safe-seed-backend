@@ -150,6 +150,7 @@ export class UsersController {
   @Get(':type')
   @HttpCode(200)
   async findUsersByType(@Param('type') type: number) {
+    console.log(this.usersService.findUsersByType(type));
     return this.usersService.findUsersByType(type);
   }
 }
