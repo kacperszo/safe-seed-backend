@@ -7,7 +7,7 @@ import {
   Request,
   BadRequestException,
 } from '@nestjs/common';
-import { ApiResponse } from '@nestjs/swagger';
+import { ApiResponse, ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { UsersService } from 'src/users/users.service';
 import { ChatroomsService } from './chatrooms.service';
@@ -15,6 +15,7 @@ import { Chatroom } from './enitities/chatroom.entity';
 import { Message } from './enitities/message.entity';
 
 //chatrooms controller
+@ApiTags('Chat rooms')
 @Controller('chatrooms')
 export class ChatroomsController {
   constructor(
@@ -61,7 +62,7 @@ export class ChatroomsController {
   }
   @ApiResponse({
     status: 200,
-    description: 'Leaves chatroom'
+    description: 'Leaves chatroom',
   })
   @Post(':roomId/leave')
   leave() {
