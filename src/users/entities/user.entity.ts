@@ -20,4 +20,6 @@ export class User {
   active: boolean;
   @ManyToMany(() => Tag, (tag) => tag.users)
   tags: Tag[];
+  @Column({ nullable: true })
+  bio: string;
 }

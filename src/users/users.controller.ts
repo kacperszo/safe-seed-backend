@@ -25,6 +25,7 @@ export class UsersController {
     user.active = false;
     user.nickname = this.usersService.generateNickname();
     user.type = reqBody.type;
+    user.bio = reqBody.bio;
     const createdUser = await this.usersService.create(user);
 
     return {
@@ -32,6 +33,7 @@ export class UsersController {
       phone: createdUser.phone,
       nickname: createdUser.nickname,
       type: createdUser.type,
+      bio: createdUser.bio,
     };
   }
 }
