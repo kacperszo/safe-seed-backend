@@ -108,11 +108,11 @@ export class UsersController {
   @ApiResponse({
     status: 200,
     description: 'Returns all users with at least one similar tag',
-    type: [UserDto],
   })
-  @Post('/bytags')
+  @UseGuards(JwtAuthGuard)
+  @Post('/similar')
   @HttpCode(200)
-  async findAllBySimilarity(@Body() reqBody: FindUserDto) {
-    return this.usersService.findAllBySimilarity(reqBody.id);
+  async findAllBySimilarity(@Request() req) {
+    return this.usersService.findAllBySimilarity(req.user.id);
   }
 }
