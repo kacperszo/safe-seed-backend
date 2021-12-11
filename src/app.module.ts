@@ -5,6 +5,7 @@ import { UsersModule } from './users/users.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AuthModule } from './auth/auth.module';
 import { ConfigModule } from '@nestjs/config';
+import { TagsModule } from './tags/tags.module';
 @Module({
   imports: [
     ConfigModule.forRoot(),
@@ -22,18 +23,9 @@ import { ConfigModule } from '@nestjs/config';
       logger: 'advanced-console',
     }),
     AuthModule,
+    TagsModule
   ],
   controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule {
-  constructor() {
-    console.log({
-      host: process.env.DB_HOST || '127.0.0.1',
-      port: parseInt(process.env.DB_PORT) || 5432,
-      username: process.env.DB_USER || 'postgres',
-      password: process.env.DB_PASS || '1234',
-      database: process.env.DB_DBNAME || 'safeseed',
-    });
-  }
-}
+export class AppModule {}

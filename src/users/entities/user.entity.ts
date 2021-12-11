@@ -1,6 +1,6 @@
 import { Column, Entity, ManyToMany, PrimaryGeneratedColumn } from 'typeorm';
 import { MinLength } from 'class-validator';
-import { Tag } from './tag.entity';
+import { Tag } from '../../tags/entities/tag.entity';
 
 @Entity()
 export class User {
