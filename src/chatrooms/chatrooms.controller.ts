@@ -28,7 +28,7 @@ export class ChatroomsController {
       const chatroom = await this.chatromService.findOneByIdWithUsers(
         user.chatrooms[i].id,
       );
-      await console.log(chatroom);
+
       for (let j = 0; j < chatroom.users.length; j++) {
         if (chatroom.users[j].id === userId) {
           throw new BadRequestException(
