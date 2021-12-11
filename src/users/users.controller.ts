@@ -10,7 +10,7 @@ import {
   Request,
   UseGuards,
 } from '@nestjs/common';
-import { ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { hash } from 'bcrypt';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { TagsService } from 'src/tags/tags.service';
@@ -59,6 +59,7 @@ export class UsersController {
     };
   }
   @Put(':id')
+  @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
   @ApiResponse({
     type: UserDto,
@@ -89,6 +90,7 @@ export class UsersController {
   @ApiResponse({
     type: UserDto,
   })
+  @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
   async regenerateNickname(@Request() req) {
     const user = await this.usersService.findOneById(req.user.id);
@@ -110,6 +112,7 @@ export class UsersController {
     description: 'Returns all users with at least one similar tag',
   })
   @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
   @Post('/similar')
   @HttpCode(200)
   async findAllBySimilarity(@Request() req) {
