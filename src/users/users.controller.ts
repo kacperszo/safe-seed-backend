@@ -74,10 +74,13 @@ export class UsersController {
     @Param('id') id: string,
   ) {
     const user = await this.usersService.findOneById(id);
+
+    if (reqBody.tags) {
+      user.tags = await this.tagService.findTagsByIds(reqBody.tags);
+    }
+    if (reqBody.bio) user.bio = reqBody.bio;
     if (user.id !== req.user.id)
       throw new ForbiddenException("You can't edit this user");
-    user.bio = reqBody.bio;
-    user.tags = await this.tagService.findTagsByIds(reqBody.tags);
     const updatedUser = await this.usersService.update(user);
 
     return {
