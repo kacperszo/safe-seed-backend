@@ -65,8 +65,11 @@ export class ChatroomsController {
     description: 'Leaves chatroom',
   })
   @Post(':roomId/leave')
-  leave() {
-    return null;
+  @UseGuards(JwtAuthGuard)
+  async leave(@Param('roomId') roomId: string, @Request() req) {
+    const chatroom = await this.chatromService.findOneByIdWithUsers(roomId);
+    const user = await this.userService.findOneById(req.user.id);
+    return this.chatromService.leave(chatroom, user);
   }
   @ApiResponse({
     status: 200,

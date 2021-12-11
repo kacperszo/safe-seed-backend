@@ -25,7 +25,7 @@ export class TagsController {
     description: 'Returns tags by type',
     type: [TagDto],
   })
-  @Get(':type')
+  @Get('/:type')
   @HttpCode(200)
   async findTagsByType(@Param('type') type: TagType): Promise<Tag[]> {
     return this.tagsService.findTagsByType(type);

@@ -9,6 +9,14 @@ import { Message } from './enitities/message.entity';
 //chatroom service
 @Injectable()
 export class ChatroomsService {
+  constructor(
+    @InjectRepository(Chatroom)
+    private readonly chatroomRepository: Repository<Chatroom>,
+    @InjectRepository(Message)
+    private readonly messageRepository: Repository<Message>,
+    private readonly userService: UsersService,
+  ) {}
+
   async addMessage(chatroomId: any, userId: any, message: any) {
     const chatroom = await this.chatroomRepository.findOne(chatroomId);
     const user = await this.userService.findOneById(userId);
@@ -28,14 +36,12 @@ export class ChatroomsService {
       .where('chatroom.id = :id', { id })
       .getOne();
   }
-  constructor(
-    @InjectRepository(Chatroom)
-    private readonly chatroomRepository: Repository<Chatroom>,
-    @InjectRepository(Message)
-    private readonly messageRepository: Repository<Message>,
-    private readonly userService: UsersService,
-  ) {}
+
   async create(chatroom: Chatroom) {
     return this.chatroomRepository.save(chatroom);
+  }
+
+  async leave(chatroom: Chatroom, user: User) {
+    chatroom.users.splice(chatroom.users.indexOf(user), 1);
   }
 }
