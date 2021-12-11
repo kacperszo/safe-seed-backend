@@ -35,5 +35,5 @@ export class UsersController {
       type: createdUser.type,
       bio: createdUser.bio,
     };
-  } 
+  }
 }
