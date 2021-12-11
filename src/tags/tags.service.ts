@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { Tag } from './entities/tag.entity';
+import { Tag, TagType } from './entities/tag.entity';
 
 @Injectable()
 export class TagsService {
@@ -17,5 +17,12 @@ export class TagsService {
       .createQueryBuilder('tag')
       .andWhere('tag.id IN (:...ids)', { ids })
       .getMany();
+  }
+  async findTagsByType(type: TagType): Promise<Tag[]> {
+    return this.tagRepository.find({
+      where: {
+        type: type
+      }
+    })
   }
 }
