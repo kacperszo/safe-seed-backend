@@ -15,8 +15,8 @@ import { hash } from 'bcrypt';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { TagsService } from 'src/tags/tags.service';
 import { CreateUserDto } from './dtos/create-user.dto';
+import { SimilarUserDto } from './dtos/similar-user.dto';
 import { UpdateUserDto } from './dtos/update-user.dto';
-import { FindUserDto } from './dtos/find-users.dto';
 import { UserDto } from './dtos/user.dto';
 import { User } from './entities/user.entity';
 import { UsersService } from './users.service';
@@ -110,10 +110,11 @@ export class UsersController {
   @ApiResponse({
     status: 200,
     description: 'Returns all users with at least one similar tag',
+    type: [SimilarUserDto]
   })
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
-  @Post('/similar')
+  @Get('/similar')
   @HttpCode(200)
   async findAllBySimilarity(@Request() req) {
     return this.usersService.findAllBySimilarity(req.user.id);
