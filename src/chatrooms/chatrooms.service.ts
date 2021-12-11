@@ -18,13 +18,15 @@ export class ChatroomsService {
   ) {}
 
   async addMessage(chatroomId: any, userId: any, message: any) {
-    const chatroom = await this.chatroomRepository.findOne(chatroomId);
+    const _chatroom = await this.chatroomRepository.findOne(chatroomId);
     const user = await this.userService.findOneById(userId);
+    console.log(user, userId);
     const newMessage = new Message();
-    newMessage.chatroom = chatroom;
+    newMessage.chatroom = _chatroom;
     newMessage.author = user;
     newMessage.message = message;
-    return this.messageRepository.save(newMessage);
+    const { chatroom, ...rest } = await this.messageRepository.save(newMessage);
+    return rest;
   }
   async findOneById(id: any) {
     return this.chatroomRepository.findOne(id);
@@ -48,9 +50,9 @@ export class ChatroomsService {
 
   async getAllMessagesFromChatroom(id: string) {
     return this.messageRepository
-    .createQueryBuilder('message')
-    .leftJoinAndSelect('message.author', 'user')
-    .where('"chatroomId" = :id', { id })
-    .getMany();
+      .createQueryBuilder('message')
+      .leftJoinAndSelect('message.author', 'user')
+      .where('"chatroomId" = :id', { id })
+      .getMany();
   }
 }

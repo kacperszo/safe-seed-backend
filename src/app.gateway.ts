@@ -9,7 +9,7 @@ import {
 } from '@nestjs/websockets';
 import { Socket, Server } from 'socket.io';
 import { ChatroomsService } from './chatrooms/chatrooms.service';
-@WebSocketGateway()
+@WebSocketGateway({ cors: true })
 export class AppGateway
   implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
 {
@@ -18,10 +18,14 @@ export class AppGateway
   private logger: Logger = new Logger('AppGateway');
 
   @SubscribeMessage('msgToServer')
-  handleMessage(client: any, payload: any): void {
+  async handleMessage(client: any, payload: any): Promise<void> {
     const { chatroomId, userId, message } = payload;
-    this.chatroomService.addMessage(chatroomId, userId, message);
-    this.server.emit(chatroomId, { chatroomId, userId, message });
+    const response = await this.chatroomService.addMessage(
+      chatroomId,
+      userId,
+      message,
+    );
+    this.server.emit(chatroomId, { ...response });
   }
 
   afterInit(server: Server) {

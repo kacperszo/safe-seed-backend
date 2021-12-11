@@ -102,6 +102,9 @@ export class ChatroomsController {
     if (!userisPartOfRoom) {
       throw new BadRequestException('you are not part of this room');
     }
-    return (await this.chatromService.getAllMessagesFromChatroom(roomId));
+    return {
+      ...(await this.chatromService.findOneByIdWithUsers(roomId)),
+      msgs: [...(await this.chatromService.getAllMessagesFromChatroom(roomId))],
+    };
   }
 }
