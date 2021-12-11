@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from 'src/users/entities/user.entity';
+import { UsersService } from 'src/users/users.service';
 import { Repository } from 'typeorm';
 import { Chatroom } from './enitities/chatroom.entity';
 import { Message } from './enitities/message.entity';
@@ -8,6 +9,15 @@ import { Message } from './enitities/message.entity';
 //chatroom service
 @Injectable()
 export class ChatroomsService {
+  async addMessage(chatroomId: any, userId: any, message: any) {
+    const chatroom = await this.chatroomRepository.findOne(chatroomId);
+    const user = await this.userService.findOneById(userId);
+    const newMessage = new Message();
+    newMessage.chatroom = chatroom;
+    newMessage.author = user;
+    newMessage.message = message;
+    return this.messageRepository.save(newMessage);
+  }
   async findOneById(id: any) {
     return this.chatroomRepository.findOne(id);
   }
@@ -23,6 +33,7 @@ export class ChatroomsService {
     private readonly chatroomRepository: Repository<Chatroom>,
     @InjectRepository(Message)
     private readonly messageRepository: Repository<Message>,
+    private readonly userService: UsersService,
   ) {}
   async create(chatroom: Chatroom) {
     return this.chatroomRepository.save(chatroom);

@@ -15,6 +15,6 @@ import { Message } from './enitities/message.entity';
   ],
   providers: [ChatroomsService, UsersService],
   controllers: [ChatroomsController],
-  exports: [TypeOrmModule, ChatroomsModule],
+  exports: [TypeOrmModule, ChatroomsService],
 })
 export class ChatroomsModule {}

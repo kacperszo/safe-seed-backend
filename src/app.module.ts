@@ -8,6 +8,7 @@ import { ConfigModule } from '@nestjs/config';
 import { TagsModule } from './tags/tags.module';
 import { ChatroomsModule } from './chatrooms/chatrooms.module';
 import { AppGateway } from './app.gateway';
+import { ChatroomsService } from './chatrooms/chatrooms.service';
 @Module({
   imports: [
     ConfigModule.forRoot(),
@@ -29,6 +30,6 @@ import { AppGateway } from './app.gateway';
     ChatroomsModule,
   ],
   controllers: [AppController],
-  providers: [AppService, AppGateway],
+  providers: [AppService, AppGateway, ChatroomsService],
 })
 export class AppModule {}

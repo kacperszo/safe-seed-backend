@@ -17,7 +17,7 @@ export class Message {
   author: User;
   @Column()
   message: string;
-  @Column({ type: 'timestamp' })
+  @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   createdAt: Date;
   @ManyToOne(() => Chatroom, (chatroom) => chatroom.messages)
   chatroom: Chatroom;
