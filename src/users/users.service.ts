@@ -100,7 +100,7 @@ export class UsersService {
 
       if (id) {
         query.orWhere('"userId" = :userId', { userId: id });
-        let [sql, params] = query.getQueryAndParameters();
+        const [sql, params] = query.getQueryAndParameters();
         return sql.replace('$1', `'${params[0]}'`);
       }
 
@@ -111,10 +111,7 @@ export class UsersService {
       return this.userRepository.manager
         .createQueryBuilder()
         .select('count("userId")')
-        .from(
-          `(${filterUsersAndTagsQuery(id)})`,
-          'filteredUsers',
-        )
+        .from(`(${filterUsersAndTagsQuery(id)})`, 'filteredUsers')
         .groupBy('"tagId"')
         .having('count("userId") > 1')
         .getQuery();
