@@ -59,11 +59,19 @@ export class ChatroomsController {
   @Get()
   @UseGuards(JwtAuthGuard)
   async findAll(@Request() req) {
-    return Promise.all((await this.userService.findOneById(req.user.id)).chatrooms.map(async _chatroom => {
-      const chatroom = await this.chatromService.findOneByIdWithUsers(_chatroom.id);
-      chatroom.users = [chatroom.users.find(user => user.id !== req.user.id)];
-      return chatroom;
-    }));
+    return Promise.all(
+      (await this.userService.findOneById(req.user.id)).chatrooms.map(
+        async (_chatroom) => {
+          const chatroom = await this.chatromService.findOneByIdWithUsers(
+            _chatroom.id,
+          );
+          chatroom.users = [
+            chatroom.users.find((user) => user.id !== req.user.id),
+          ];
+          return chatroom;
+        },
+      ),
+    );
   }
   @ApiResponse({
     status: 200,
