@@ -15,5 +15,6 @@ export class UserDto {
   @ApiProperty({
     type: [TagDto],
   })
+  @IsArray()
   tags: Tag[];
 }

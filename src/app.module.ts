@@ -6,6 +6,8 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { AuthModule } from './auth/auth.module';
 import { ConfigModule } from '@nestjs/config';
 import { TagsModule } from './tags/tags.module';
+import { ChatroomsModule } from './chatrooms/chatrooms.module';
+import { AppGateway } from './app.gateway';
 @Module({
   imports: [
     ConfigModule.forRoot(),
@@ -24,8 +26,9 @@ import { TagsModule } from './tags/tags.module';
     }),
     AuthModule,
     TagsModule,
+    ChatroomsModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService, AppGateway],
 })
 export class AppModule {}

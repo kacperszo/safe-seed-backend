@@ -5,12 +5,14 @@ import { UsersController } from './users.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Tag } from '../tags/entities/tag.entity';
 import { TagsModule } from 'src/tags/tags.module';
+import { ChatroomsModule } from 'src/chatrooms/chatrooms.module';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([User]),
     TypeOrmModule.forFeature([Tag]),
     TagsModule,
+    ChatroomsModule,
   ],
   providers: [UsersService],
   controllers: [UsersController],
