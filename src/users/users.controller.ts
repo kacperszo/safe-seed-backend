@@ -67,7 +67,7 @@ export class UsersController {
   async update(
     @Request() req,
     @Body() reqBody: UpdateUserDto,
-    @Param('id') id: number,
+    @Param('id') id: string,
   ) {
     const user = await this.usersService.findOneById(id);
     if (user.id !== req.user.id)
@@ -110,7 +110,7 @@ export class UsersController {
   @ApiResponse({
     status: 200,
     description: 'Returns all users with at least one similar tag',
-    type: [SimilarUserDto]
+    type: [SimilarUserDto],
   })
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()

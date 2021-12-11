@@ -56,7 +56,7 @@ export class UsersService {
   constructor(
     @InjectRepository(User) private readonly userRepository: Repository<User>,
   ) {}
-  async findOneById(id: number): Promise<User> {
+  async findOneById(id: string): Promise<User> {
     return this.userRepository.findOne(id);
   }
   async findOneByPhone(phone: string): Promise<User> {
@@ -130,9 +130,9 @@ export class UsersService {
     const usersWithSimilarity = (id?: string): SelectQueryBuilder<unknown> => {
       return this.userRepository.manager
         .createQueryBuilder()
-        .select('id, nickname, type')
+        .select('id, nickname, type, chatrooms, messages, bio')
         .addSelect(`(${similarTagsCount(id)})`, 'similarTagsCount')
-        .from(User, 'user')
+        .from(User, 'user');
     };
 
     const getSimilarTags = (id1: string, id2: string) => {
@@ -149,35 +149,54 @@ export class UsersService {
 
       const userTags = (uid: string) => {
         const query = this.userRepository.manager
-        .createQueryBuilder()
-        .select('"tag"."id"', 'id')
-        .from(Tag, 'tag')
-        .leftJoin('tag.users', 'users')
-        .orWhere('users.id = :uid', { uid: uid })
-        .andWhere('"tag"."id" is not Null')
+          .createQueryBuilder()
+          .select('"tag"."id"', 'id')
+          .from(Tag, 'tag')
+          .leftJoin('tag.users', 'users')
+          .orWhere('users.id = :uid', { uid: uid })
+          .andWhere('"tag"."id" is not Null');
 
         const [sql, params] = query.getQueryAndParameters();
         return sql.replace('$1', `'${params[0]}'`);
-      }
+      };
 
       const tagsIntersection = (q: string) => {
         return this.userRepository.manager
-        .createQueryBuilder()
-        .distinct()
-        .select(`(${q})`)
-        .from(User, 'user')
-      }
+          .createQueryBuilder()
+          .distinct()
+          .select(`(${q})`)
+          .from(User, 'user');
+      };
 
-      return this.userRepository.manager.query(tagsIntersection(`${userTags(id1)} INTERSECT ${userTags(id2)}`).getQuery())
-    }
+      return this.userRepository.manager.query(
+        tagsIntersection(
+          `${userTags(id1)} INTERSECT ${userTags(id2)}`,
+        ).getQuery(),
+      );
+    };
 
-    const users: SimilarUserDto[] = await Promise.all((await usersWithSimilarity(id).getRawMany()).filter(user => user.similarTagsCount > 0).map(async user => {
-      return {
-        ...user,
-        tags: (await getSimilarTags(id, user.id)).filter(tag => tag.id != null)
-      }
-    }));
-    
+    const users: SimilarUserDto[] = await Promise.all(
+      (
+        await usersWithSimilarity(id).getRawMany()
+      )
+        .filter((user: SimilarUserDto) => {
+          return (
+            user.similarTagsCount > 0 &&
+            user.chatrooms.find((chatroom) =>
+              chatroom.users.find((user) => user.id == id),
+            )
+          );
+        })
+        .map(async (user) => {
+          return {
+            ...user,
+            tags: (await getSimilarTags(id, user.id)).filter(
+              (tag) => tag.id != null,
+            ),
+          };
+        }),
+    );
+
     return users;
   }
 }
