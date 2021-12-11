@@ -1,7 +1,8 @@
-import { Body, Controller, HttpCode, Post } from '@nestjs/common';
+import { Body, Controller, Get, HttpCode, Post } from '@nestjs/common';
 import { ApiResponse, ApiTags } from '@nestjs/swagger';
 import { hash } from 'bcrypt';
 import { CreateUserDto } from './dtos/create-user.dto';
+import { FindUserDto } from './dtos/find-users.dto';
 import { UserDto } from './dtos/user.dto';
 import { User } from './entities/user.entity';
 import { UsersService } from './users.service';
@@ -35,5 +36,16 @@ export class UsersController {
       type: createdUser.type,
       bio: createdUser.bio,
     };
+  }
+
+  @ApiResponse({
+    status: 200,
+    description: 'Returns all users with at least one similar tag',
+    type: [UserDto]
+  })
+  @Post('/bytags')
+  @HttpCode(200)
+  async findAllBySimilarity(@Body() reqBody: FindUserDto) {
+    return this.usersService.findAllBySimilarity(reqBody.id)
   }
 }

@@ -1,7 +1,6 @@
 import { Controller, Get, HttpCode } from "@nestjs/common";
 import { ApiResponse, ApiTags } from "@nestjs/swagger";
 import { TagDto } from "./dtos/tag.dto";
-import { Tag } from "./entities/tag.entity";
 import { TagsService } from "./tags.service";
 
 @ApiTags('tags')
@@ -16,7 +15,7 @@ export class TagsController {
     })
     @Get()
     @HttpCode(200)
-    async findAll(): Promise<Tag[]> {
+    async findAll(): Promise<TagDto[]> {
         return this.tagsService.findAll();
     }
 }
