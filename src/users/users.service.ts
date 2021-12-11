@@ -151,7 +151,7 @@ export class UsersService {
       const userTags = (uid: string) => {
         const query = this.userRepository.manager
           .createQueryBuilder()
-          .select('"tag"."id"', 'id')
+          .select('"tag"."id"')
           .from(Tag, 'tag')
           .leftJoin('tag.users', 'users')
           .orWhere('users.id = :uid', { uid: uid })
@@ -171,25 +171,22 @@ export class UsersService {
 
       return this.userRepository.manager.query(
         tagsIntersection(
-          `${userTags(id1)} INTERSECT ${userTags(id2)}`,
+          `(${userTags(id1)}) INTERSECT (${userTags(id2)})`,
         ).getQuery(),
       );
     };
 
-    const users: SimilarUserDto[] = await Promise.all(
-      (
-        await usersWithSimilarity().getRawMany()
-      )
-        .filter((_user: SimilarUserDto) => _user.similarTagsCount > 0)
-        .map(async (_user) => {
-          return {
-            ..._user,
-            tags: (await getSimilarTags(user.id, _user.id)).filter(
-              (tag) => tag.id != null,
-            ),
-          };
-        }),
-    );
+    const users: SimilarUserDto[] = (
+      await usersWithSimilarity().getRawMany()
+    ).filter((_user: SimilarUserDto) => _user.similarTagsCount > 0);
+    // .map(async (_user) => {
+    //   return {
+    //     ..._user,
+    //     tags: (await getSimilarTags(user.id, _user.id)).filter(
+    //       (tag) => tag.id != null,
+    //     ),
+    //   };
+    // }),
 
     return users;
   }
@@ -197,8 +194,8 @@ export class UsersService {
   async findUsersByType(type: number): Promise<User[]> {
     return this.userRepository.find({
       where: {
-        type: type
-      }
-    })
+        type: type,
+      },
+    });
   }
 }
