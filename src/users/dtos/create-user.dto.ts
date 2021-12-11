@@ -12,7 +12,6 @@ export class CreateUserDto {
   password: string;
   @ApiProperty()
   bio: string;
-  @IsArray()
   @ApiProperty()
   tags: string[];
 }
