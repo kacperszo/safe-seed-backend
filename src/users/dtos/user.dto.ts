@@ -7,10 +7,10 @@ export class UserDto {
   @ApiProperty()
   id: string;
   @ApiProperty()
-  phone: string;
-  @ApiProperty()
   nickname: string;
-  @ApiProperty()
+  @ApiProperty({
+    description: '0 - user, 1 - terapists, 2 - admin'
+  })
   type: number;
   @ApiProperty({
     type: [TagDto],

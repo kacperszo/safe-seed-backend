@@ -29,7 +29,7 @@ export class User {
   @ManyToMany(() => Tag, (tag) => tag.users, { cascade: true, eager: true })
   tags: Tag[];
   @ManyToMany(() => Chatroom, (chatroom) => chatroom.users, {
-    eager: true,
+    lazy: true,
   })
   chatrooms: Chatroom[];
   @Column({ nullable: true })

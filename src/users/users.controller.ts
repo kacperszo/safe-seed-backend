@@ -48,13 +48,14 @@ export class UsersController {
     user.nickname = this.usersService.generateNickname();
     user.type = reqBody.type;
     user.bio = reqBody.bio;
-    user.tags = await this.tagService.findTagsByIds(reqBody.tags);
+
+    if (user.tags)
+      user.tags = await this.tagService.findTagsByIds(reqBody.tags);
 
     const createdUser = await this.usersService.create(user);
 
     return {
       id: createdUser.id,
-      phone: createdUser.phone,
       nickname: createdUser.nickname,
       type: createdUser.type,
       bio: createdUser.bio,
@@ -81,7 +82,6 @@ export class UsersController {
 
     return {
       id: updatedUser.id,
-      phone: updatedUser.phone,
       nickname: updatedUser.nickname,
       type: updatedUser.type,
       bio: updatedUser.bio,
@@ -102,7 +102,6 @@ export class UsersController {
 
     return {
       id: updatedUser.id,
-      phone: updatedUser.phone,
       nickname: updatedUser.nickname,
       type: updatedUser.type,
       bio: updatedUser.bio,
@@ -121,14 +120,17 @@ export class UsersController {
   @HttpCode(200)
   async findUsersBySimilarity(@Request() req) {
     const user = await this.usersService.findOneById(req.user.id);
-    const users = await this.usersService.findUsersBySimilarity(user)
+    const users = await this.usersService.findUsersBySimilarity(user);
     for (let i = 0; i < user.chatrooms.length; i++) {
       const chatroom = await this.chatromService.findOneByIdWithUsers(
         user.chatrooms[i].id,
       );
       for (let j = 0; j < chatroom.users.length; j++) {
-        if (users.map(_user => _user.id).includes(chatroom.users[j].id)) {
-          users.splice(users.findIndex(_user => _user.id === chatroom.users[j].id), 1);
+        if (users.map((_user) => _user.id).includes(chatroom.users[j].id)) {
+          users.splice(
+            users.findIndex((_user) => _user.id === chatroom.users[j].id),
+            1,
+          );
         }
       }
     }
