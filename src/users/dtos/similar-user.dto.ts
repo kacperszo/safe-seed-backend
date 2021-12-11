@@ -17,14 +17,14 @@ export class SimilarUserDto {
     type: [TagDto],
   })
   tags: Tag[];
-  @ApiProperty({
-    type: [Message],
-  })
-  messages: Message[];
+  @ApiProperty()
+  bio: string;
   @ApiProperty({
     type: [Chatroom],
   })
   chatrooms: Chatroom[];
-  @ApiProperty()
-  bio: string;
+  @ApiProperty({
+    type: [Message],
+  })
+  messages: Message[];
 }

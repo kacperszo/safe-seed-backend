@@ -6,6 +6,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { Tag } from '../tags/entities/tag.entity';
 import { TagsModule } from 'src/tags/tags.module';
 import { ChatroomsModule } from 'src/chatrooms/chatrooms.module';
+import { ChatroomsService } from 'src/chatrooms/chatrooms.service';
 
 @Module({
   imports: [
@@ -14,7 +15,7 @@ import { ChatroomsModule } from 'src/chatrooms/chatrooms.module';
     TagsModule,
     ChatroomsModule,
   ],
-  providers: [UsersService],
+  providers: [UsersService, ChatroomsService],
   controllers: [UsersController],
   exports: [TypeOrmModule, UsersService],
 })

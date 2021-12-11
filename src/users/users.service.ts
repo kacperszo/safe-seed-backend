@@ -57,7 +57,7 @@ export class UsersService {
   constructor(
     @InjectRepository(User) private readonly userRepository: Repository<User>,
   ) {}
-  async findOneById(id: number): Promise<User> {
+  async findOneById(id: string): Promise<User> {
     return this.userRepository.findOne(id);
   }
   async findOneByPhone(phone: string): Promise<User> {
@@ -76,7 +76,7 @@ export class UsersService {
     return this.userRepository.delete(id);
   }
 
-  async findAllBySimilarity(id: string): Promise<SimilarUserDto[]> {
+  async findUsersBySimilarity(user: User): Promise<SimilarUserDto[]> {
     // select "user"."id", (
     //   select count(*)
     //   from (
@@ -94,15 +94,15 @@ export class UsersService {
     // )
     // from "user";
 
-    const filterUsersAndTagsQuery = (id?: string): string => {
+    const filterUsersAndTagsQuery = (): string => {
       const query = this.userRepository.manager
         .createQueryBuilder()
         .select('*')
         .from('user_tag', 'q1')
         .orWhere('"userId" = "user"."id"');
 
-      if (id) {
-        query.orWhere('"userId" = :userId', { userId: id });
+      if (user.id) {
+        query.orWhere('"userId" = :userId', { userId: user.id });
         const [sql, params] = query.getQueryAndParameters();
         return sql.replace('$1', `'${params[0]}'`);
       }
@@ -110,29 +110,29 @@ export class UsersService {
       return query.getQuery();
     };
 
-    const similarTags = (id?: string): SelectQueryBuilder<unknown> => {
+    const similarTags = (): SelectQueryBuilder<unknown> => {
       return this.userRepository.manager
         .createQueryBuilder()
         .select('count("userId")')
         .addSelect('"tagId"')
-        .from(`(${filterUsersAndTagsQuery(id)})`, 'filteredUsers')
+        .from(`(${filterUsersAndTagsQuery()})`, 'filteredUsers')
         .groupBy('"tagId"')
         .having('count("userId") > 1');
     };
 
-    const similarTagsCount = (id?: string): string => {
+    const similarTagsCount = (): string => {
       return this.userRepository.manager
         .createQueryBuilder()
         .select('count(*)')
-        .from(`(${similarTags(id).getQuery()})`, 'similarTags')
+        .from(`(${similarTags().getQuery()})`, 'similarTags')
         .getQuery();
     };
 
-    const usersWithSimilarity = (id?: string): SelectQueryBuilder<unknown> => {
+    const usersWithSimilarity = (): SelectQueryBuilder<unknown> => {
       return this.userRepository.manager
         .createQueryBuilder()
-        .select('id, nickname, type')
-        .addSelect(`(${similarTagsCount(id)})`, 'similarTagsCount')
+        .select('id, nickname, type, bio')
+        .addSelect(`(${similarTagsCount()})`, 'similarTagsCount')
         .from(User, 'user');
     };
 
@@ -161,11 +161,11 @@ export class UsersService {
         return sql.replace('$1', `'${params[0]}'`);
       };
 
-      const tagsIntersection = (q: string) => {
+      const tagsIntersection = (query: string) => {
         return this.userRepository.manager
           .createQueryBuilder()
           .distinct()
-          .select(`(${q})`)
+          .select(`(${query})`)
           .from(User, 'user');
       };
 
@@ -178,15 +178,13 @@ export class UsersService {
 
     const users: SimilarUserDto[] = await Promise.all(
       (
-        await usersWithSimilarity(id).getRawMany()
+        await usersWithSimilarity().getRawMany()
       )
-        .filter((user: SimilarUserDto) => {
-          return user.similarTagsCount > 0 && !user.chatrooms.find(chatroom => chatroom.users.find(user => user.id == id));
-        })
-        .map(async (user) => {
+        .filter((_user: SimilarUserDto) => _user.similarTagsCount > 0)
+        .map(async (_user) => {
           return {
-            ...user,
-            tags: (await getSimilarTags(id, user.id)).filter(
+            ..._user,
+            tags: (await getSimilarTags(user.id, _user.id)).filter(
               (tag) => tag.id != null,
             ),
           };
