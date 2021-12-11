@@ -19,7 +19,7 @@ export class AppGateway
 
   @SubscribeMessage('msgToServer')
   handleMessage(client: any, payload: any): void {
-    const { chatroomId, userId, message } = payload[0];
+    const { chatroomId, userId, message } = payload;
     this.chatroomService.addMessage(chatroomId, userId, message);
     this.server.emit(chatroomId, { chatroomId, userId, message });
   }

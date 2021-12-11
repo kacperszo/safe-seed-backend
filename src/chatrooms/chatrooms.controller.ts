@@ -81,6 +81,7 @@ export class ChatroomsController {
   async getRoomMsg(@Request() req, @Param('roomId') roomId: string) {
     const user = await this.userService.findOneById(req.user.id);
     let userisPartOfRoom = false;
+    console.log(user);
     for (let i = 0; i < user.chatrooms.length; i++) {
       if (user.chatrooms[i].id === roomId) {
         userisPartOfRoom = true;
