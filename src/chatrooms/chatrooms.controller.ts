@@ -52,7 +52,18 @@ export class ChatroomsController {
     return null;
   }
   @Get(':roomId')
-  async getRoomMsg(@Param('roomId') roomId: string) {
+  @UseGuards(JwtAuthGuard)
+  async getRoomMsg(@Request() req, @Param('roomId') roomId: string) {
+    const user = await this.userService.findOneById(req.user.id);
+    let userisPartOfRoom = false;
+    for (let i = 0; i < user.chatrooms.length; i++) {
+      if (user.chatrooms[i].id === roomId) {
+        userisPartOfRoom = true;
+      }
+    }
+    if (!userisPartOfRoom) {
+      throw new BadRequestException('you are not part of this room');
+    }
     return (await this.chatromService.findOneById(roomId)).messages;
   }
 }
