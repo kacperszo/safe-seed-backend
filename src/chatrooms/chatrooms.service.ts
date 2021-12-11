@@ -45,4 +45,12 @@ export class ChatroomsService {
     chatroom.users.splice(chatroom.users.indexOf(user), 1);
     return this.chatroomRepository.save(chatroom);
   }
+
+  async getAllMessagesFromChatroom(id: string) {
+    return this.messageRepository
+    .createQueryBuilder('message')
+    .leftJoinAndSelect('message.author', 'user')
+    .where('"chatroomId" = :id', { id })
+    .getMany();
+  }
 }
