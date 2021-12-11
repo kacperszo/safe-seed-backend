@@ -43,5 +43,6 @@ export class ChatroomsService {
 
   async leave(chatroom: Chatroom, user: User) {
     chatroom.users.splice(chatroom.users.indexOf(user), 1);
+    return this.chatroomRepository.save(chatroom);
   }
 }

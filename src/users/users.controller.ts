@@ -124,6 +124,7 @@ export class UsersController {
   async findUsersBySimilarity(@Request() req) {
     const user = await this.usersService.findOneById(req.user.id);
     const users = await this.usersService.findUsersBySimilarity(user);
+    console.log(users);
     for (let i = 0; i < user.chatrooms.length; i++) {
       const chatroom = await this.chatromService.findOneByIdWithUsers(
         user.chatrooms[i].id,
@@ -151,5 +152,4 @@ export class UsersController {
   async findUsersByType(@Param('type') type: number) {
     return this.usersService.findUsersByType(type);
   }
-
 }
