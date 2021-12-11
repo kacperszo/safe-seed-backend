@@ -19,12 +19,4 @@ export class SimilarUserDto {
   tags: Tag[];
   @ApiProperty()
   bio: string;
-  @ApiProperty({
-    type: [Chatroom],
-  })
-  chatrooms: Chatroom[];
-  @ApiProperty({
-    type: [Message],
-  })
-  messages: Message[];
 }
