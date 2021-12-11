@@ -5,4 +5,6 @@ export class TagDto {
   id: string;
   @ApiProperty()
   name: string;
+  @ApiProperty()
+  type: string;
 }

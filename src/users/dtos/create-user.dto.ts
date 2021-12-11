@@ -1,6 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { MinLength, IsNotEmpty } from 'class-validator';
-import { Tag } from '../../tags/entities/tag.entity';
+import { MinLength, IsNotEmpty, IsArray } from 'class-validator';
 export class CreateUserDto {
   @ApiProperty()
   @MinLength(9)
@@ -12,5 +11,7 @@ export class CreateUserDto {
   @MinLength(8)
   password: string;
   bio: string;
-  tags: Tag[];
+  @IsArray()
+  @ApiProperty()
+  tags: string[];
 }

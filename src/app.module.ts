@@ -23,7 +23,7 @@ import { TagsModule } from './tags/tags.module';
       logger: 'advanced-console',
     }),
     AuthModule,
-    TagsModule
+    TagsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

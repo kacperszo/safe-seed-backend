@@ -6,7 +6,10 @@ import {
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { User } from '../../users/entities/user.entity';
-
+export enum TagType {
+  PROBLEM = 'problem',
+  GOAL = 'goal',
+}
 @Entity()
 export class Tag {
   @PrimaryGeneratedColumn('uuid')
@@ -18,4 +21,6 @@ export class Tag {
     name: 'user_tag',
   })
   users: User[];
+  @Column({ type: 'enum', enum: TagType, default: TagType.PROBLEM })
+  type: TagType;
 }

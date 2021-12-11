@@ -18,7 +18,7 @@ export class User {
   type: number;
   @Column()
   active: boolean;
-  @ManyToMany(() => Tag, (tag) => tag.users)
+  @ManyToMany(() => Tag, (tag) => tag.users, { cascade: true, eager: true })
   tags: Tag[];
   @Column({ nullable: true })
   bio: string;
