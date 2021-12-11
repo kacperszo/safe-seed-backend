@@ -91,7 +91,7 @@ export class UsersService {
     // )
     // from "user";
 
-    const q1 = (id?: string): SelectQueryBuilder<unknown> => {
+    const filterUsersAndTagsQuery = (id?: string): string => {
       const query = this.userRepository.manager
         .createQueryBuilder()
         .select('*')
@@ -100,44 +100,48 @@ export class UsersService {
 
       if (id) {
         query.orWhere('"userId" = :userId', { userId: id });
+        let [sql, params] = query.getQueryAndParameters();
+        return sql.replace('$1', `'${params[0]}'`);
       }
 
-      return query;
+      return query.getQuery();
     };
 
-    const q2 = (id?: string): SelectQueryBuilder<unknown> => {
+    const similarTags = (id?: string): string => {
       return this.userRepository.manager
         .createQueryBuilder()
         .select('count("userId")')
         .from(
-          `(${(([sql, params] = q1(id).getQueryAndParameters()) =>
-            sql.replace('$1', `'${params[0]}'`))()})`,
-          'q1',
+          `(${filterUsersAndTagsQuery(id)})`,
+          'filteredUsers',
         )
         .groupBy('"tagId"')
-        .having('count("userId") > 1');
+        .having('count("userId") > 1')
+        .getQuery();
     };
 
-    const q3 = (id?: string): SelectQueryBuilder<unknown> => {
+    const similarTagsCount = (id?: string): string => {
       return this.userRepository.manager
         .createQueryBuilder()
         .select('count(*)')
-        .from(`(${q2(id).getQuery()})`, 'q2');
+        .from(`(${similarTags(id)})`, 'similarTags')
+        .getQuery();
     };
 
-    const q4 = (id?: string) => {
+    const usersWithSimilarity = (id?: string): string => {
       return this.userRepository.manager
         .createQueryBuilder()
         .select('"user"."id"')
-        .addSelect(`(${q3(id).getQuery()})`, 'count')
-        .from(User, 'user');
+        .addSelect(`(${similarTagsCount(id)})`, 'similarTagsCount')
+        .from(User, 'user')
+        .getQuery();
     };
 
     return this.userRepository.manager
       .createQueryBuilder()
       .select('*')
-      .from(`(${q4(id).getQuery()})`, 'q4')
-      .where('"count" > 0')
+      .from(`(${usersWithSimilarity(id)})`, 'usersWithSimilarity')
+      .where('"similarTagsCount" > 0')
       .getRawMany();
   }
 }
