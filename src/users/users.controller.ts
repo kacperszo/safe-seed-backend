@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   ForbiddenException,
@@ -13,6 +14,7 @@ import {
 import { ApiBearerAuth, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { hash } from 'bcrypt';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
+import { ChatroomsService } from 'src/chatrooms/chatrooms.service';
 import { TagsService } from 'src/tags/tags.service';
 import { CreateUserDto } from './dtos/create-user.dto';
 import { SimilarUserDto } from './dtos/similar-user.dto';
@@ -26,6 +28,7 @@ import { UsersService } from './users.service';
 export class UsersController {
   constructor(
     private readonly usersService: UsersService,
+    private readonly chatromService: ChatroomsService,
     private readonly tagService: TagsService,
   ) {}
 
@@ -116,7 +119,20 @@ export class UsersController {
   @ApiBearerAuth()
   @Get('/similar')
   @HttpCode(200)
-  async findAllBySimilarity(@Request() req) {
-    return this.usersService.findAllBySimilarity(req.user.id);
+  async findUsersBySimilarity(@Request() req) {
+    const user = await this.usersService.findOneById(req.user.id);
+    const users = await this.usersService.findUsersBySimilarity(user)
+    for (let i = 0; i < user.chatrooms.length; i++) {
+      const chatroom = await this.chatromService.findOneByIdWithUsers(
+        user.chatrooms[i].id,
+      );
+      for (let j = 0; j < chatroom.users.length; j++) {
+        if (users.map(_user => _user.id).includes(chatroom.users[j].id)) {
+          users.splice(users.findIndex(_user => _user.id === chatroom.users[j].id), 1);
+        }
+      }
+    }
+
+    return users;
   }
 }
