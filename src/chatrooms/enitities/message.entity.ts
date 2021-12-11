@@ -13,12 +13,12 @@ import { Chatroom } from './chatroom.entity';
 export class Message {
   @PrimaryGeneratedColumn('uuid')
   id: string;
-  @ManyToMany(() => User, (user) => user.messages)
+  @ManyToOne(() => User, (user) => user.messages)
   author: User;
   @Column()
   message: string;
   @Column({ type: 'timestamp' })
   createdAt: Date;
-  @ManyToOne(() => User, (user) => user.messages)
+  @ManyToOne(() => Chatroom, (chatroom) => chatroom.messages)
   chatroom: Chatroom;
 }

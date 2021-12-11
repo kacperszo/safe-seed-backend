@@ -52,7 +52,7 @@ export class ChatroomsController {
     return null;
   }
   @Get(':roomId')
-  getRoom() {
-    return null;
+  async getRoomMsg(@Param('roomId') roomId: string) {
+    return (await this.chatromService.findOneById(roomId)).messages;
   }
 }

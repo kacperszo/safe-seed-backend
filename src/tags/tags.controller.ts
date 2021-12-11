@@ -30,5 +30,4 @@ export class TagsController {
   async findTagsByType(@Param('type') type: TagType): Promise<Tag[]> {
     return this.tagsService.findTagsByType(type);
   }
-  
 }

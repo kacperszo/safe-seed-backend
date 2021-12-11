@@ -21,8 +21,8 @@ export class TagsService {
   async findTagsByType(type: TagType): Promise<Tag[]> {
     return this.tagRepository.find({
       where: {
-        type: type
-      }
-    })
+        type: type,
+      },
+    });
   }
 }
