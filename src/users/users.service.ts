@@ -128,7 +128,7 @@ export class UsersService {
     const usersWithSimilarity = (id?: string): string => {
       return this.userRepository.manager
         .createQueryBuilder()
-        .select('"user"."id"')
+        .select('*')
         .addSelect(`(${similarTagsCount(id)})`, 'similarTagsCount')
         .from(User, 'user')
         .getQuery();
