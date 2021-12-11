@@ -1,5 +1,11 @@
 import { Controller, UseGuards, Request, Post, Get } from '@nestjs/common';
-import { ApiBody, ApiProperty, ApiResponse, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiBody,
+  ApiProperty,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 import { UserDto } from 'src/users/dtos/user.dto';
 import { UsersService } from 'src/users/users.service';
 import { AuthService } from './auth.service';
@@ -47,6 +53,7 @@ export class AuthController {
   }
   @UseGuards(JwtAuthGuard)
   @Get('/me')
+  @ApiBearerAuth()
   @ApiResponse({ type: UserDto })
   async me(@Request() req) {
     const { password, ...rest } = await this.userService.findOneById(

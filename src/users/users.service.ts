@@ -1,6 +1,8 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { Tag } from 'src/tags/entities/tag.entity';
 import { DeleteResult, Repository, SelectQueryBuilder } from 'typeorm';
+import { SimilarUserDto } from './dtos/similar-user.dto';
 import { User } from './entities/user.entity';
 
 @Injectable()
@@ -73,7 +75,7 @@ export class UsersService {
     return this.userRepository.delete(id);
   }
 
-  async findAllBySimilarity(id: string): Promise<User[]> {
+  async findAllBySimilarity(id: string): Promise<SimilarUserDto[]> {
     // select "user"."id", (
     //   select count(*)
     //   from (
@@ -107,38 +109,75 @@ export class UsersService {
       return query.getQuery();
     };
 
-    const similarTags = (id?: string): string => {
+    const similarTags = (id?: string): SelectQueryBuilder<unknown> => {
       return this.userRepository.manager
         .createQueryBuilder()
         .select('count("userId")')
+        .addSelect('"tagId"')
         .from(`(${filterUsersAndTagsQuery(id)})`, 'filteredUsers')
         .groupBy('"tagId"')
-        .having('count("userId") > 1')
-        .getQuery();
+        .having('count("userId") > 1');
     };
 
     const similarTagsCount = (id?: string): string => {
       return this.userRepository.manager
         .createQueryBuilder()
         .select('count(*)')
-        .from(`(${similarTags(id)})`, 'similarTags')
+        .from(`(${similarTags(id).getQuery()})`, 'similarTags')
         .getQuery();
     };
 
-    const usersWithSimilarity = (id?: string): string => {
+    const usersWithSimilarity = (id?: string): SelectQueryBuilder<unknown> => {
       return this.userRepository.manager
         .createQueryBuilder()
-        .select('"user"."id"')
+        .select('id, nickname, type')
         .addSelect(`(${similarTagsCount(id)})`, 'similarTagsCount')
         .from(User, 'user')
-        .getQuery();
     };
 
-    return this.userRepository.manager
-      .createQueryBuilder()
-      .select('*')
-      .from(`(${usersWithSimilarity(id)})`, 'usersWithSimilarity')
-      .where('"similarTagsCount" > 0')
-      .getRawMany();
+    const getSimilarTags = (id1: string, id2: string) => {
+      // SELECT DISTINCT (
+      //   SELECT tag.id
+      //   FROM tag join user_tag on tag.id = "tagId" join "user" "users" on "user".id = "userId"
+      //   where "users".id = '6303ad9d-f9a2-40af-8570-85bb139f1d87'
+      //   INTERSECT
+      //   SELECT tag.id
+      //   FROM tag join user_tag on tag.id = "tagId" join "user" "users" on "user".id = "userId"
+      //   where "users".id = "user"."id"
+      // )
+      // FROM "user"
+
+      const userTags = (uid: string) => {
+        const query = this.userRepository.manager
+        .createQueryBuilder()
+        .select('"tag"."id"', 'id')
+        .from(Tag, 'tag')
+        .leftJoin('tag.users', 'users')
+        .orWhere('users.id = :uid', { uid: uid })
+        .andWhere('"tag"."id" is not Null')
+
+        const [sql, params] = query.getQueryAndParameters();
+        return sql.replace('$1', `'${params[0]}'`);
+      }
+
+      const tagsIntersection = (q: string) => {
+        return this.userRepository.manager
+        .createQueryBuilder()
+        .distinct()
+        .select(`(${q})`)
+        .from(User, 'user')
+      }
+
+      return this.userRepository.manager.query(tagsIntersection(`${userTags(id1)} INTERSECT ${userTags(id2)}`).getQuery())
+    }
+
+    const users: SimilarUserDto[] = await Promise.all((await usersWithSimilarity(id).getRawMany()).filter(user => user.similarTagsCount > 0).map(async user => {
+      return {
+        ...user,
+        tags: (await getSimilarTags(id, user.id)).filter(tag => tag.id != null)
+      }
+    }));
+    
+    return users;
   }
 }
