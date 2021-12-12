@@ -49,7 +49,7 @@ export class UsersController {
     user.type = reqBody.type;
     user.bio = reqBody.bio;
 
-    if (user.tags)
+    if (reqBody.tags)
       user.tags = await this.tagService.findTagsByIds(reqBody.tags);
 
     const createdUser = await this.usersService.create(user);
